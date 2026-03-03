@@ -15,7 +15,6 @@ public class Wish {
     private Long id;
     // primitive FK - no entity reference
     private Long memberId;
-
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;

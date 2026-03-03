@@ -39,6 +39,14 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    val cucumberVersion = "7.18.1"
+    testImplementation("io.cucumber:cucumber-java:$cucumberVersion")
+    testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
+    testImplementation("org.junit.platform:junit-platform-suite-api:1.11.0")
+    testImplementation("org.junit.platform:junit-platform-suite-engine:1.11.0")
+    testImplementation("io.rest-assured:rest-assured:5.5.0")
 }
 
 kotlin {

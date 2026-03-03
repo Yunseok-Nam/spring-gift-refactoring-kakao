@@ -1,6 +1,5 @@
 package gift.member;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,25 +8,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-/**
- * Admin controller for managing members.
- *
- * @author brian.kim
- * @since 1.0
- */
 @Controller
 @RequestMapping("/admin/members")
 public class AdminMemberController {
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    @Autowired
-    public AdminMemberController(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
+    public AdminMemberController(MemberService memberService) {
+        this.memberService = memberService;
     }
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("members", memberRepository.findAll());
+        model.addAttribute("members", memberService.findAll());
         return "member/list";
     }
 
@@ -42,19 +34,18 @@ public class AdminMemberController {
         @RequestParam String password,
         Model model
     ) {
-        if (memberRepository.existsByEmail(email)) {
-            populateNewFormError(model, email, "Email is already registered.");
+        try {
+            memberService.create(email, password);
+        } catch (IllegalArgumentException e) {
+            populateNewFormError(model, email, e.getMessage());
             return "member/new";
         }
-
-        memberRepository.save(new Member(email, password));
         return "redirect:/admin/members";
     }
 
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
-        final Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
+        var member = memberService.findById(id);
         model.addAttribute("member", member);
         return "member/edit";
     }
@@ -65,10 +56,7 @@ public class AdminMemberController {
         @RequestParam String email,
         @RequestParam String password
     ) {
-        final Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
-        member.update(email, password);
-        memberRepository.save(member);
+        memberService.update(id, email, password);
         return "redirect:/admin/members";
     }
 
@@ -77,16 +65,13 @@ public class AdminMemberController {
         @PathVariable Long id,
         @RequestParam int amount
     ) {
-        final Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Member not found. id=" + id));
-        member.chargePoint(amount);
-        memberRepository.save(member);
+        memberService.chargePoint(id, amount);
         return "redirect:/admin/members";
     }
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id) {
-        memberRepository.deleteById(id);
+        memberService.delete(id);
         return "redirect:/admin/members";
     }
 

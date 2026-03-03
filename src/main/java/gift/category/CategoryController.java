@@ -17,15 +17,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    public CategoryController(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> getCategories() {
-        List<CategoryResponse> categories = categoryRepository.findAll().stream()
+        var categories = categoryService.findAll().stream()
             .map(CategoryResponse::from)
             .toList();
         return ResponseEntity.ok(categories);
@@ -33,7 +33,7 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CategoryRequest request) {
-        Category saved = categoryRepository.save(request.toEntity());
+        var saved = categoryService.create(request);
         return ResponseEntity.created(URI.create("/api/categories/" + saved.getId()))
             .body(CategoryResponse.from(saved));
     }
@@ -43,19 +43,16 @@ public class CategoryController {
         @PathVariable Long id,
         @Valid @RequestBody CategoryRequest request
     ) {
-        Category category = categoryRepository.findById(id).orElse(null);
+        var category = categoryService.update(id, request);
         if (category == null) {
             return ResponseEntity.notFound().build();
         }
-
-        category.update(request.name(), request.color(), request.imageUrl(), request.description());
-        categoryRepository.save(category);
         return ResponseEntity.ok(CategoryResponse.from(category));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        categoryRepository.deleteById(id);
+        categoryService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
