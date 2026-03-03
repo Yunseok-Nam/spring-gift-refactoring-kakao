@@ -35,19 +35,31 @@ public class OrderService {
         return orderRepository.findByMemberId(memberId, pageable);
     }
 
+    // order flow:
+    // 1. auth check
+    // 2. validate option
+    // 3. subtract stock
+    // 4. deduct points
+    // 5. save order
+    // 6. cleanup wish
+    // 7. send kakao notification
     public Order create(Member member, OrderRequest request) {
+        // validate option
         var option = optionRepository.findById(request.optionId()).orElse(null);
         if (option == null) {
             return null;
         }
 
+        // subtract stock
         option.subtractQuantity(request.quantity());
         optionRepository.save(option);
 
+        // deduct points
         var price = option.getProduct().getPrice() * request.quantity();
         member.deductPoint(price);
         memberRepository.save(member);
 
+        // save order
         var saved = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));
 
         // best-effort kakao notification
