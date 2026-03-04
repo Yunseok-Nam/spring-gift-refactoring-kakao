@@ -3,6 +3,7 @@ package gift.member;
 import gift.auth.JwtProvider;
 import gift.auth.TokenResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class MemberService {
         this.jwtProvider = jwtProvider;
     }
 
+    @Transactional
     public TokenResponse register(MemberRequest request) {
         var member = create(request);
         return new TokenResponse(jwtProvider.createToken(member));
@@ -41,6 +43,7 @@ public class MemberService {
             .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다. id=" + id));
     }
 
+    @Transactional
     public Member create(MemberRequest request) {
         if (memberRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("이미 등록된 이메일입니다.");
@@ -48,12 +51,14 @@ public class MemberService {
         return memberRepository.save(new Member(request.email(), request.password()));
     }
 
+    @Transactional
     public Member update(Long id, MemberRequest request) {
         var member = findById(id);
         member.update(request.email(), request.password());
         return memberRepository.save(member);
     }
 
+    @Transactional
     public void chargePoint(Long id, int amount) {
         var member = findById(id);
         member.chargePoint(amount);
