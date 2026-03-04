@@ -36,15 +36,17 @@ public class KakaoAuthService {
 
     public TokenResponse processCallback(String code) {
         KakaoLoginClient.KakaoTokenResponse kakaoToken = kakaoLoginClient.requestAccessToken(code);
-        KakaoLoginClient.KakaoUserResponse kakaoUser = kakaoLoginClient.requestUserInfo(kakaoToken.accessToken());
-        String email = kakaoUser.email();
+        KakaoLoginClient.KakaoUserResponse kakaoUser = kakaoLoginClient.requestUserInfo(kakaoToken);
 
-        var member = memberRepository.findByEmail(email)
-            .orElseGet(() -> new Member(email));
+        Member member = findOrCreateMember(kakaoUser.email());
         member.updateKakaoAccessToken(kakaoToken.accessToken());
         memberRepository.save(member);
 
-        var token = jwtProvider.createToken(member.getEmail());
-        return new TokenResponse(token);
+        return new TokenResponse(jwtProvider.createToken(member));
+    }
+
+    private Member findOrCreateMember(String email) {
+        return memberRepository.findByEmail(email)
+            .orElseGet(() -> new Member(email));
     }
 }

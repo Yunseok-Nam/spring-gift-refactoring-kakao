@@ -1,5 +1,6 @@
 package gift.auth;
 
+import gift.member.Member;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,10 @@ public class JwtProvider {
             .parseSignedClaims(token)
             .getPayload()
             .getSubject();
+    }
+
+    public String createToken(Member member) {
+        return createToken(member.getEmail());
     }
 
     public String createToken(String email) {

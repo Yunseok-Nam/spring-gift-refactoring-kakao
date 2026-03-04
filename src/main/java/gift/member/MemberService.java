@@ -21,8 +21,7 @@ public class MemberService {
             throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
         var member = memberRepository.save(new Member(request.email(), request.password()));
-        var token = jwtProvider.createToken(member.getEmail());
-        return new TokenResponse(token);
+        return new TokenResponse(jwtProvider.createToken(member));
     }
 
     public TokenResponse login(MemberRequest request) {
@@ -33,8 +32,7 @@ public class MemberService {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        var token = jwtProvider.createToken(member.getEmail());
-        return new TokenResponse(token);
+        return new TokenResponse(jwtProvider.createToken(member));
     }
 
     public List<Member> findAll() {

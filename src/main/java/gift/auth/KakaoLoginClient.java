@@ -32,10 +32,10 @@ public class KakaoLoginClient {
             .body(KakaoTokenResponse.class);
     }
 
-    public KakaoUserResponse requestUserInfo(String accessToken) {
+    public KakaoUserResponse requestUserInfo(KakaoTokenResponse tokenResponse) {
         return restClient.get()
             .uri("https://kapi.kakao.com/v2/user/me")
-            .header("Authorization", "Bearer " + accessToken)
+            .header("Authorization", "Bearer " + tokenResponse.accessToken())
             .retrieve()
             .body(KakaoUserResponse.class);
     }
