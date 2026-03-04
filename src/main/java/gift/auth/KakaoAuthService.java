@@ -3,6 +3,7 @@ package gift.auth;
 import gift.member.Member;
 import gift.member.MemberRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class KakaoAuthService implements AuthService {
@@ -26,6 +27,7 @@ public class KakaoAuthService implements AuthService {
     }
 
     @Override
+    @Transactional
     public TokenResponse processCallback(String code) {
         OAuthResult result = oAuthClient.authenticate(code);
 
