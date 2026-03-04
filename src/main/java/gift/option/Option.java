@@ -41,6 +41,10 @@ public class Option {
         this.quantity -= amount;
     }
 
+    public boolean belongsTo(Long productId) {
+        return this.product.getId().equals(productId);
+    }
+
     public Long getId() {
         return id;
     }

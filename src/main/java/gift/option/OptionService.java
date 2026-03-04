@@ -2,6 +2,7 @@ package gift.option;
 
 import gift.product.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,20 +17,16 @@ public class OptionService {
     }
 
     public List<Option> findByProductId(Long productId) {
-        var product = productRepository.findById(productId).orElse(null);
-        if (product == null) {
-            return null;
-        }
+        validateProductExists(productId);
         return optionRepository.findByProductId(productId);
     }
 
+    @Transactional
     public Option create(Long productId, OptionRequest request) {
         validateName(request.name());
 
-        var product = productRepository.findById(productId).orElse(null);
-        if (product == null) {
-            return null;
-        }
+        var product = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. id=" + productId));
 
         if (optionRepository.existsByProductIdAndName(productId, request.name())) {
             throw new IllegalArgumentException("이미 존재하는 옵션명입니다.");
@@ -38,24 +35,29 @@ public class OptionService {
         return optionRepository.save(new Option(product, request.name(), request.quantity()));
     }
 
-    public Option delete(Long productId, Long optionId) {
-        var product = productRepository.findById(productId).orElse(null);
-        if (product == null) {
-            return null;
-        }
+    @Transactional
+    public void delete(Long productId, Long optionId) {
+        validateProductExists(productId);
 
         var options = optionRepository.findByProductId(productId);
         if (options.size() <= 1) {
             throw new IllegalArgumentException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다.");
         }
 
-        var option = optionRepository.findById(optionId).orElse(null);
-        if (option == null || !option.getProduct().getId().equals(productId)) {
-            return null;
+        var option = optionRepository.findById(optionId)
+            .orElseThrow(() -> new IllegalArgumentException("옵션을 찾을 수 없습니다. id=" + optionId));
+
+        if (!option.belongsTo(productId)) {
+            throw new IllegalArgumentException("해당 상품의 옵션이 아닙니다.");
         }
 
         optionRepository.delete(option);
-        return option;
+    }
+
+    private void validateProductExists(Long productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new IllegalArgumentException("상품을 찾을 수 없습니다. id=" + productId);
+        }
     }
 
     private void validateName(String name) {
