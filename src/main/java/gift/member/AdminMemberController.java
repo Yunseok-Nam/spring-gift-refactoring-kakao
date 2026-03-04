@@ -29,15 +29,11 @@ public class AdminMemberController {
     }
 
     @PostMapping
-    public String create(
-        @RequestParam String email,
-        @RequestParam String password,
-        Model model
-    ) {
+    public String create(MemberRequest request, Model model) {
         try {
-            memberService.create(email, password);
+            memberService.create(request);
         } catch (IllegalArgumentException e) {
-            populateNewFormError(model, email, e.getMessage());
+            populateNewFormError(model, request.email(), e.getMessage());
             return "member/new";
         }
         return "redirect:/admin/members";
@@ -56,7 +52,7 @@ public class AdminMemberController {
         @RequestParam String email,
         @RequestParam String password
     ) {
-        memberService.update(id, email, password);
+        memberService.update(id, new MemberRequest(email, password));
         return "redirect:/admin/members";
     }
 
