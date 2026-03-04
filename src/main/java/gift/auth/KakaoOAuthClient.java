@@ -5,18 +5,37 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
-public class KakaoLoginClient {
+public class KakaoOAuthClient implements OAuthClient {
     private final KakaoLoginProperties properties;
     private final RestClient restClient;
 
-    public KakaoLoginClient(KakaoLoginProperties properties, RestClient.Builder builder) {
+    public KakaoOAuthClient(KakaoLoginProperties properties, RestClient.Builder builder) {
         this.properties = properties;
         this.restClient = builder.build();
     }
 
-    public KakaoTokenResponse requestAccessToken(String code) {
+    @Override
+    public String buildAuthorizationUrl() {
+        return UriComponentsBuilder.fromUriString("https://kauth.kakao.com/oauth/authorize")
+            .queryParam("response_type", "code")
+            .queryParam("client_id", properties.clientId())
+            .queryParam("redirect_uri", properties.redirectUri())
+            .queryParam("scope", "account_email,talk_message")
+            .build()
+            .toUriString();
+    }
+
+    @Override
+    public OAuthResult authenticate(String code) {
+        KakaoTokenResponse token = requestAccessToken(code);
+        KakaoUserResponse user = requestUserInfo(token);
+        return new OAuthResult(user.email(), token.accessToken());
+    }
+
+    private KakaoTokenResponse requestAccessToken(String code) {
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", properties.clientId());
@@ -32,7 +51,7 @@ public class KakaoLoginClient {
             .body(KakaoTokenResponse.class);
     }
 
-    public KakaoUserResponse requestUserInfo(KakaoTokenResponse tokenResponse) {
+    private KakaoUserResponse requestUserInfo(KakaoTokenResponse tokenResponse) {
         return restClient.get()
             .uri("https://kapi.kakao.com/v2/user/me")
             .header("Authorization", "Bearer " + tokenResponse.accessToken())
@@ -41,18 +60,18 @@ public class KakaoLoginClient {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record KakaoTokenResponse(@JsonProperty("access_token") String accessToken) {
+    private record KakaoTokenResponse(@JsonProperty("access_token") String accessToken) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record KakaoUserResponse(@JsonProperty("kakao_account") KakaoAccount kakaoAccount) {
+    private record KakaoUserResponse(@JsonProperty("kakao_account") KakaoAccount kakaoAccount) {
 
         public String email() {
             return kakaoAccount.email();
         }
 
         @JsonIgnoreProperties(ignoreUnknown = true)
-        public record KakaoAccount(String email) {
+        private record KakaoAccount(String email) {
         }
     }
 }

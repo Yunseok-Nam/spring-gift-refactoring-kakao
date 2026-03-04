@@ -21,8 +21,10 @@ spring-gift-refactoring-kakao/
 │   │   │   │   ├── AuthController.java
 │   │   │   │   ├── AuthService.java
 │   │   │   │   ├── KakaoAuthService.java
-│   │   │   │   ├── KakaoLoginClient.java
+│   │   │   │   ├── KakaoOAuthClient.java
 │   │   │   │   ├── KakaoLoginProperties.java
+│   │   │   │   ├── OAuthClient.java
+│   │   │   │   ├── OAuthResult.java
 │   │   │   │   ├── AuthenticationResolver.java
 │   │   │   │   ├── JwtProvider.java
 │   │   │   │   └── TokenResponse.java
@@ -150,8 +152,10 @@ spring-gift-refactoring-kakao/
 | AuthenticationResolver | Authorization 헤더에서 인증된 회원 추출 |
 | AuthController | OAuth 로그인 엔드포인트 (프로바이더 무관) |
 | AuthService | OAuth 인증 흐름 인터페이스 (URL 구성, 콜백 처리) |
-| KakaoAuthService | AuthService 카카오 구현체 (URL 구성, 콜백 처리, 회원 동기화) |
-| KakaoLoginClient | 카카오 API 호출 (토큰, 사용자 정보) |
+| OAuthClient | OAuth 클라이언트 인터페이스 (인증 URL 구성, 인증 처리) |
+| OAuthResult | OAuth 인증 결과 DTO (이메일, 액세스 토큰) |
+| KakaoAuthService | AuthService 카카오 구현체 (OAuthClient를 통한 콜백 처리, 회원 동기화) |
+| KakaoOAuthClient | OAuthClient 카카오 구현체 (카카오 API 호출) |
 | KakaoLoginProperties | 카카오 설정 값 (clientId, clientSecret, redirectUri) |
 | TokenResponse | JWT 토큰 응답 DTO |
 
