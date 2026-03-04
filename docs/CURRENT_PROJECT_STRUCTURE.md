@@ -18,7 +18,8 @@ spring-gift-refactoring-kakao/
 │   │   ├── java/gift/
 │   │   │   ├── Application.java
 │   │   │   ├── auth/
-│   │   │   │   ├── KakaoAuthController.java
+│   │   │   │   ├── AuthController.java
+│   │   │   │   ├── AuthService.java
 │   │   │   │   ├── KakaoAuthService.java
 │   │   │   │   ├── KakaoLoginClient.java
 │   │   │   │   ├── KakaoLoginProperties.java
@@ -147,8 +148,9 @@ spring-gift-refactoring-kakao/
 |--------|------|
 | JwtProvider | JWT 토큰 생성/검증 |
 | AuthenticationResolver | Authorization 헤더에서 인증된 회원 추출 |
-| KakaoAuthController | 카카오 OAuth2 로그인 엔드포인트 |
-| KakaoAuthService | 카카오 OAuth 인증 흐름 (URL 구성, 콜백 처리, 회원 동기화) |
+| AuthController | OAuth 로그인 엔드포인트 (프로바이더 무관) |
+| AuthService | OAuth 인증 흐름 인터페이스 (URL 구성, 콜백 처리) |
+| KakaoAuthService | AuthService 카카오 구현체 (URL 구성, 콜백 처리, 회원 동기화) |
 | KakaoLoginClient | 카카오 API 호출 (토큰, 사용자 정보) |
 | KakaoLoginProperties | 카카오 설정 값 (clientId, clientSecret, redirectUri) |
 | TokenResponse | JWT 토큰 응답 DTO |
@@ -236,8 +238,8 @@ Category ──1:N──→ Product ──1:N──→ Option ──1:N──→
 |--------|-----|------|
 | POST | /api/members/register | 회원가입 |
 | POST | /api/members/login | 로그인 |
-| GET | /api/auth/kakao/login | 카카오 로그인 리다이렉트 |
-| GET | /api/auth/kakao/callback | 카카오 콜백 |
+| GET | /api/auth/login | OAuth 로그인 리다이렉트 |
+| GET | /api/auth/callback | OAuth 콜백 |
 
 ### 카테고리
 

@@ -9,25 +9,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth/kakao")
-public class KakaoAuthController {
-    private final KakaoAuthService kakaoAuthService;
+@RequestMapping("/api/auth")
+public class AuthController {
+    private final AuthService authService;
 
-    public KakaoAuthController(KakaoAuthService kakaoAuthService) {
-        this.kakaoAuthService = kakaoAuthService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @GetMapping("/login")
     public ResponseEntity<Void> login() {
-        var kakaoAuthUrl = kakaoAuthService.buildAuthorizationUrl();
+        var authUrl = authService.buildAuthorizationUrl();
         return ResponseEntity.status(HttpStatus.FOUND)
-            .header(HttpHeaders.LOCATION, kakaoAuthUrl)
+            .header(HttpHeaders.LOCATION, authUrl)
             .build();
     }
 
     @GetMapping("/callback")
     public ResponseEntity<TokenResponse> callback(@RequestParam("code") String code) {
-        var tokenResponse = kakaoAuthService.processCallback(code);
+        var tokenResponse = authService.processCallback(code);
         return ResponseEntity.ok(tokenResponse);
     }
 }
