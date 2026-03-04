@@ -1,6 +1,7 @@
 package gift.category;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class CategoryService {
         return categoryRepository.save(request.toEntity());
     }
 
+    @Transactional
     public Category update(Long id, CategoryRequest request) {
         var category = categoryRepository.findById(id).orElse(null);
         if (category == null) {
