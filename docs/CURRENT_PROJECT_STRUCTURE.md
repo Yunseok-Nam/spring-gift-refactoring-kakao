@@ -116,7 +116,8 @@ spring-gift-refactoring-kakao/
 │
 └── docs/
     ├── TEST_PLAN.md
-    └── PROJECT_STRUCTURE.md
+    ├── PROJECT_STRUCTURE.md
+    └── refactoring.md
 ```
 
 ## 기술 스택
