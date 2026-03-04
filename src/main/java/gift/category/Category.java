@@ -25,11 +25,11 @@ public class Category {
         this.description = description;
     }
 
-    public void update(String name, String color, String imageUrl, String description) {
-        this.name = name;
-        this.color = color;
-        this.imageUrl = imageUrl;
-        this.description = description;
+    public void update(CategoryRequest request) {
+        this.name = request.name();
+        this.color = request.color();
+        this.imageUrl = request.imageUrl();
+        this.description = request.description();
     }
 
     public Long getId() {

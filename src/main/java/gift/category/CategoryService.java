@@ -25,7 +25,7 @@ public class CategoryService {
         if (category == null) {
             return null;
         }
-        category.update(request.name(), request.color(), request.imageUrl(), request.description());
+        category.update(request);
         return categoryRepository.save(category);
     }
 
