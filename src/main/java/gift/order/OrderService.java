@@ -15,20 +15,20 @@ public class OrderService {
     private final OptionRepository optionRepository;
     private final WishRepository wishRepository;
     private final MemberRepository memberRepository;
-    private final KakaoMessageClient kakaoMessageClient;
+    private final MessageClient messageClient;
 
     public OrderService(
         OrderRepository orderRepository,
         OptionRepository optionRepository,
         WishRepository wishRepository,
         MemberRepository memberRepository,
-        KakaoMessageClient kakaoMessageClient
+        MessageClient messageClient
     ) {
         this.orderRepository = orderRepository;
         this.optionRepository = optionRepository;
         this.wishRepository = wishRepository;
         this.memberRepository = memberRepository;
-        this.kakaoMessageClient = kakaoMessageClient;
+        this.messageClient = messageClient;
     }
 
     public Page<Order> findByMemberId(Long memberId, Pageable pageable) {
@@ -45,35 +45,32 @@ public class OrderService {
     // 7. send kakao notification
     public Order create(Member member, OrderRequest request) {
         // validate option
-        var option = optionRepository.findById(request.optionId()).orElse(null);
-        if (option == null) {
-            return null;
-        }
+        Option option = optionRepository.findById(request.optionId())
+            .orElseThrow(() -> new IllegalArgumentException("옵션을 찾을 수 없습니다. id=" + request.optionId()));
 
         // subtract stock
         option.subtractQuantity(request.quantity());
         optionRepository.save(option);
 
         // deduct points
-        var price = option.getProduct().getPrice() * request.quantity();
-        member.deductPoint(price);
+        int totalPrice = option.calculateTotalPrice(request.quantity());
+        member.deductPoint(totalPrice);
         memberRepository.save(member);
 
         // save order
-        var saved = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));
+        Order saved = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));
 
         // best-effort kakao notification
-        sendKakaoMessageIfPossible(member, saved, option);
+        sendMessageIfPossible(member, saved, option);
         return saved;
     }
 
-    private void sendKakaoMessageIfPossible(Member member, Order order, Option option) {
-        if (member.getKakaoAccessToken() == null) {
+    private void sendMessageIfPossible(Member member, Order order, Option option) {
+        if (!member.hasKakaoAccount()) {
             return;
         }
         try {
-            var product = option.getProduct();
-            kakaoMessageClient.sendToMe(member.getKakaoAccessToken(), order, product);
+            messageClient.sendOrderMessage(member.getKakaoAccessToken(), order, option.getProduct());
         } catch (Exception ignored) {
         }
     }

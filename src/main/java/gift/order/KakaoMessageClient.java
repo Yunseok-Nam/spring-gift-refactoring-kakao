@@ -6,14 +6,15 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 
 @Component
-public class KakaoMessageClient {
+public class KakaoMessageClient implements MessageClient {
     private final RestClient restClient;
 
     public KakaoMessageClient(RestClient.Builder builder) {
         this.restClient = builder.build();
     }
 
-    public void sendToMe(String accessToken, Order order, Product product) {
+    @Override
+    public void sendOrderMessage(String accessToken, Order order, Product product) {
         var templateObject = buildTemplate(order, product);
 
         var params = new LinkedMultiValueMap<String, String>();

@@ -37,6 +37,10 @@ public class Member {
         this.password = password;
     }
 
+    public boolean hasKakaoAccount() {
+        return this.kakaoAccessToken != null;
+    }
+
     public void updateKakaoAccessToken(String kakaoAccessToken) {
         this.kakaoAccessToken = kakaoAccessToken;
     }
