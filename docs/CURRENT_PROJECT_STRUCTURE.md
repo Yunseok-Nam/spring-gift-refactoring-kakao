@@ -66,6 +66,9 @@ spring-gift-refactoring-kakao/
 │   │   │   │   ├── OrderRepository.java
 │   │   │   │   ├── OrderRequest.java
 │   │   │   │   ├── OrderResponse.java
+│   │   │   │   ├── OrderCompletedEvent.java
+│   │   │   │   ├── OrderNotificationListener.java
+│   │   │   │   ├── MessageClient.java
 │   │   │   │   └── KakaoMessageClient.java
 │   │   │   └── wish/
 │   │   │       ├── Wish.java
@@ -198,9 +201,12 @@ spring-gift-refactoring-kakao/
 |--------|------|
 | Order | 엔티티 (옵션, 회원ID, 수량, 메시지, 주문시간) |
 | OrderController | REST API (주문 생성, 내 주문 조회) |
-| OrderService | 주문 비즈니스 로직 (재고 차감, 포인트 차감, 카카오 알림) |
+| OrderService | 주문 비즈니스 로직 (재고 차감, 포인트 차감, 위시 정리, 이벤트 발행) |
 | OrderRepository | JpaRepository (회원별 페이징 조회) |
-| KakaoMessageClient | 카카오톡 나에게 보내기 API 호출 |
+| OrderCompletedEvent | 주문 완료 이벤트 (트랜잭션 커밋 후 알림 발송용) |
+| OrderNotificationListener | 트랜잭션 커밋 후 카카오톡 메시지 발송 리스너 |
+| MessageClient | 메시지 발송 인터페이스 |
+| KakaoMessageClient | MessageClient 카카오 구현체 (카카오톡 나에게 보내기 API) |
 | OrderRequest / OrderResponse | 요청/응답 DTO |
 
 ### wish - 찜 리스트
@@ -297,7 +303,7 @@ Category ──1:N──→ Product ──1:N──→ Option ──1:N──→
 ## 주문 처리 흐름
 
 ```
-인증 확인 → 옵션 검증 → 재고 차감 → 포인트 차감 → 주문 저장 → 카카오톡 메시지 발송
+인증 확인 → 옵션 검증 → 재고 차감 → 포인트 차감 → 주문 저장 → 위시 정리 → 메시지 발송
 ```
 
 - 카카오톡 메시지 발송은 best-effort (실패해도 주문은 유지)
