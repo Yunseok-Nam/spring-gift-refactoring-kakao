@@ -38,7 +38,6 @@
 | 예외 메시지 언어 | 영어/한국어 혼재 (`Member.java` 내에서도 혼용) | 높 |
 | 주석 스타일 | Javadoc(`/** */`) vs 블록 주석(`/* */`) 혼재 | 중 |
 | `@RequestMapping` | `"/path"` vs `path = "/path"` 혼재 | 낮 |
-| 변수 선언 | `var` vs 명시적 타입 vs `final` 혼재 | 중 |
 | 필드 간격 | 엔티티 필드 사이 빈 줄 유무 혼재 | 낮 |
 | null 처리 | `orElse(null)` + if문 vs `orElseThrow()` 혼재 | 중 |
 
@@ -178,23 +177,7 @@ throw new IllegalArgumentException("충전 금액은 1 이상이어야 합니다
 throw new IllegalArgumentException("Amount must be greater than zero.");
 ```
 
-### 5.3 변수 선언
-
-- 지역 변수에 `var`를 사용한다 (타입이 우변에서 명확한 경우).
-- `final`은 사용하지 않는다 (재할당이 필요한 경우에만 주의).
-
-```java
-// Good — 우변에서 타입이 명확
-var member = memberRepository.findById(id).orElseThrow();
-var token = jwtProvider.createToken(email);
-
-// Good — 타입이 불명확하면 명시
-String kakaoAuthUrl = UriComponentsBuilder.fromUriString(baseUrl)
-    .build()
-    .toUriString();
-```
-
-### 5.4 `@RequestMapping` 속성
+### 5.3 `@RequestMapping` 속성
 
 값이 하나인 경우 `value` 생략 형태를 사용한다.
 
@@ -208,7 +191,7 @@ String kakaoAuthUrl = UriComponentsBuilder.fromUriString(baseUrl)
 @GetMapping(path = "/{id}")
 ```
 
-### 5.5 null 처리 패턴
+### 5.4 null 처리 패턴
 
 | 상황 | 패턴 | 응답 |
 |------|------|------|
@@ -217,13 +200,13 @@ String kakaoAuthUrl = UriComponentsBuilder.fromUriString(baseUrl)
 
 > 이 규칙은 기존 컨트롤러 패턴을 반영한 것이다. 서비스 레이어 도입 시 재검토한다.
 
-### 5.6 주석
+### 5.5 주석
 
 - 파일/클래스 수준 주석: 사용하지 않는다. 클래스명과 패키지 구조로 의도를 표현한다.
 - 인라인 주석: 코드만으로 의도가 불명확한 경우에만 사용한다.
 - Javadoc: public API(라이브러리 배포용)에만 사용한다. 이 프로젝트에서는 불필요.
 
-### 5.7 엔티티 필드 간격
+### 5.6 엔티티 필드 간격
 
 엔티티 필드 사이에 빈 줄을 넣지 않는다. `@Id` 어노테이션 블록과 일반 필드 사이만 빈 줄을 허용한다.
 
