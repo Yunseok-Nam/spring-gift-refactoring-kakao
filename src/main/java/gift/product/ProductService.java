@@ -46,7 +46,7 @@ public class ProductService {
         Category category = categoryRepository.findById(request.categoryId())
             .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + request.categoryId()));
         product.update(request.name(), request.price(), request.imageUrl(), category);
-        return productRepository.save(product);
+        return product;
     }
 
     public void delete(Long id) {

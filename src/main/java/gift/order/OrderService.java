@@ -53,12 +53,10 @@ public class OrderService {
 
         // subtract stock
         option.subtractQuantity(request.quantity());
-        optionRepository.save(option);
 
         // deduct points
         int totalPrice = option.calculateTotalPrice(request.quantity());
         member.deductPoint(totalPrice);
-        memberRepository.save(member);
 
         // save order
         Order saved = orderRepository.save(new Order(option, member.getId(), request.quantity(), request.message()));

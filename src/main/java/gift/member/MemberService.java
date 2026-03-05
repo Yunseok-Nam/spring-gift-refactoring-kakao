@@ -55,14 +55,13 @@ public class MemberService {
     public Member update(Long id, MemberRequest request) {
         Member member = findById(id);
         member.update(request.email(), request.password());
-        return memberRepository.save(member);
+        return member;
     }
 
     @Transactional
     public void chargePoint(Long id, int amount) {
         Member member = findById(id);
         member.chargePoint(amount);
-        memberRepository.save(member);
     }
 
     public void delete(Long id) {
