@@ -1,5 +1,6 @@
 package gift.option;
 
+import gift.product.Product;
 import gift.product.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,14 +38,14 @@ public class OptionService {
 
     @Transactional
     public void delete(Long productId, Long optionId) {
-        validateProductExists(productId);
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. id=" + productId));
 
-        var options = optionRepository.findByProductId(productId);
-        if (options.size() <= 1) {
+        if (!product.canDeleteOption()) {
             throw new IllegalArgumentException("옵션이 1개인 상품은 옵션을 삭제할 수 없습니다.");
         }
 
-        var option = optionRepository.findById(optionId)
+        Option option = optionRepository.findById(optionId)
             .orElseThrow(() -> new IllegalArgumentException("옵션을 찾을 수 없습니다. id=" + optionId));
 
         if (!option.belongsTo(productId)) {

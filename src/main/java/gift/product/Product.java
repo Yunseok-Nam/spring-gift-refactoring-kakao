@@ -46,6 +46,10 @@ public class Product {
         this.category = category;
     }
 
+    public boolean canDeleteOption() {
+        return this.options.size() > 1;
+    }
+
     public Long getId() {
         return id;
     }
