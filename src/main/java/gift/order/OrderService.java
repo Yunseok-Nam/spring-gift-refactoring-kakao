@@ -5,6 +5,7 @@ import gift.member.MemberRepository;
 import gift.option.Option;
 import gift.option.OptionRepository;
 import gift.wish.WishRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,20 +17,20 @@ public class OrderService {
     private final OptionRepository optionRepository;
     private final WishRepository wishRepository;
     private final MemberRepository memberRepository;
-    private final MessageClient messageClient;
+    private final ApplicationEventPublisher eventPublisher;
 
     public OrderService(
         OrderRepository orderRepository,
         OptionRepository optionRepository,
         WishRepository wishRepository,
         MemberRepository memberRepository,
-        MessageClient messageClient
+        ApplicationEventPublisher eventPublisher
     ) {
         this.orderRepository = orderRepository;
         this.optionRepository = optionRepository;
         this.wishRepository = wishRepository;
         this.memberRepository = memberRepository;
-        this.messageClient = messageClient;
+        this.eventPublisher = eventPublisher;
     }
 
     public Page<Order> findByMemberId(Long memberId, Pageable pageable) {
@@ -67,18 +68,11 @@ public class OrderService {
         wishRepository.findByMemberIdAndProductId(member.getId(), productId)
             .ifPresent(wishRepository::delete);
 
-        // best-effort kakao notification
-        sendMessageIfPossible(member, saved, option);
+        // publish event for best-effort kakao notification (sent after commit)
+        if (member.hasKakaoAccount()) {
+            eventPublisher.publishEvent(
+                new OrderCompletedEvent(member.getKakaoAccessToken(), saved, option.getProduct()));
+        }
         return saved;
-    }
-
-    private void sendMessageIfPossible(Member member, Order order, Option option) {
-        if (!member.hasKakaoAccount()) {
-            return;
-        }
-        try {
-            messageClient.sendOrderMessage(member.getKakaoAccessToken(), order, option.getProduct());
-        } catch (Exception ignored) {
-        }
     }
 }
