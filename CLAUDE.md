@@ -39,6 +39,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```
 docs/
+├── ADR.md
 ├── CURRENT_PROJECT_STRUCTURE.md
 ├── INITIAL_PROJECT_STRUCTURE.md
 ├── PROMPT.md
