@@ -28,59 +28,26 @@ public class ProductService {
     }
 
     public Product findById(Long id) {
-        return productRepository.findById(id).orElse(null);
+        return productRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + id));
     }
 
     public Product create(ProductRequest request) {
-        validateName(request.name());
-        var category = categoryRepository.findById(request.categoryId()).orElse(null);
-        if (category == null) {
-            return null;
-        }
+        Category category = categoryRepository.findById(request.categoryId())
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + request.categoryId()));
         return productRepository.save(request.toEntity(category));
     }
 
-    public Product createFromAdmin(String name, int price, String imageUrl, Long categoryId) {
-        var category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + categoryId));
-        return productRepository.save(new Product(name, price, imageUrl, category));
-    }
-
     public Product update(Long id, ProductRequest request) {
-        validateName(request.name());
-        var category = categoryRepository.findById(request.categoryId()).orElse(null);
-        if (category == null) {
-            return null;
-        }
-        var product = productRepository.findById(id).orElse(null);
-        if (product == null) {
-            return null;
-        }
-        product.update(request.name(), request.price(), request.imageUrl(), category);
-        return productRepository.save(product);
-    }
-
-    public Product updateFromAdmin(Long id, String name, int price, String imageUrl, Long categoryId) {
-        var product = productRepository.findById(id)
+        Product product = productRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + id));
-        var category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + categoryId));
-        product.update(name, price, imageUrl, category);
+        Category category = categoryRepository.findById(request.categoryId())
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + request.categoryId()));
+        product.update(request.name(), request.price(), request.imageUrl(), category);
         return productRepository.save(product);
     }
 
     public void delete(Long id) {
         productRepository.deleteById(id);
-    }
-
-    public List<Category> findAllCategories() {
-        return categoryRepository.findAll();
-    }
-
-    private void validateName(String name) {
-        var errors = ProductNameValidator.validate(name);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
-        }
     }
 }
