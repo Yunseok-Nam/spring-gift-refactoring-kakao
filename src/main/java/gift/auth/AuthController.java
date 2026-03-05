@@ -19,7 +19,7 @@ public class AuthController {
 
     @GetMapping("/login")
     public ResponseEntity<Void> login() {
-        var authUrl = authService.buildAuthorizationUrl();
+        String authUrl = authService.buildAuthorizationUrl();
         return ResponseEntity.status(HttpStatus.FOUND)
             .header(HttpHeaders.LOCATION, authUrl)
             .build();
@@ -27,7 +27,7 @@ public class AuthController {
 
     @GetMapping("/callback")
     public ResponseEntity<TokenResponse> callback(@RequestParam("code") String code) {
-        var tokenResponse = authService.processCallback(code);
+        TokenResponse tokenResponse = authService.processCallback(code);
         return ResponseEntity.ok(tokenResponse);
     }
 }

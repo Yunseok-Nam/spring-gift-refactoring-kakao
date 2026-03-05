@@ -26,7 +26,7 @@ public class OptionService {
     public Option create(Long productId, OptionRequest request) {
         validateName(request.name());
 
-        var product = productRepository.findById(productId)
+        Product product = productRepository.findById(productId)
             .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. id=" + productId));
 
         if (optionRepository.existsByProductIdAndName(productId, request.name())) {
@@ -62,7 +62,7 @@ public class OptionService {
     }
 
     private void validateName(String name) {
-        var errors = OptionNameValidator.validate(name);
+        List<String> errors = OptionNameValidator.validate(name);
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(String.join(", ", errors));
         }

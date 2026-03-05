@@ -23,7 +23,7 @@ public class CategoryService {
 
     @Transactional
     public Category update(Long id, CategoryRequest request) {
-        var category = categoryRepository.findById(id).orElse(null);
+        Category category = categoryRepository.findById(id).orElse(null);
         if (category == null) {
             return null;
         }

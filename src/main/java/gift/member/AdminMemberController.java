@@ -42,7 +42,7 @@ public class AdminMemberController {
 
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
-        var member = memberService.findById(id);
+        Member member = memberService.findById(id);
         model.addAttribute("member", member);
         return "member/edit";
     }

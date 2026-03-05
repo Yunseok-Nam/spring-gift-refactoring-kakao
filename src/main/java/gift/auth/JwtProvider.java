@@ -36,8 +36,8 @@ public class JwtProvider {
     }
 
     public String createToken(String email) {
-        var now = new Date();
-        var expiryDate = new Date(now.getTime() + expiration);
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
             .subject(email)

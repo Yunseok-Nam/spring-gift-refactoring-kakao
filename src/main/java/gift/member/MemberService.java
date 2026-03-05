@@ -19,12 +19,12 @@ public class MemberService {
 
     @Transactional
     public TokenResponse register(MemberRequest request) {
-        var member = create(request);
+        Member member = create(request);
         return new TokenResponse(jwtProvider.createToken(member));
     }
 
     public TokenResponse login(MemberRequest request) {
-        var member = memberRepository.findByEmail(request.email())
+        Member member = memberRepository.findByEmail(request.email())
             .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다."));
 
         if (!member.matchesPassword(request.password())) {
@@ -53,14 +53,14 @@ public class MemberService {
 
     @Transactional
     public Member update(Long id, MemberRequest request) {
-        var member = findById(id);
+        Member member = findById(id);
         member.update(request.email(), request.password());
         return memberRepository.save(member);
     }
 
     @Transactional
     public void chargePoint(Long id, int amount) {
-        var member = findById(id);
+        Member member = findById(id);
         member.chargePoint(amount);
         memberRepository.save(member);
     }
